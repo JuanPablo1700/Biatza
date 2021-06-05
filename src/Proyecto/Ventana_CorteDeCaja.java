@@ -10,8 +10,8 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author arlet
+ * Clase que sirve para consultar los ingresos y egresos de efectivo sobre el saldo en caja
+ * 
  */
 public class Ventana_CorteDeCaja extends javax.swing.JFrame {
 
@@ -23,9 +23,9 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
         this.setSize(new Dimension(1275, 585));
         setLocationRelativeTo(null);
     }
-
+    
     public String Fecha="",Concepto="",Detalles="", Saldo = "0";
-    public float Ingreso = 0, Retiro = 0;
+    
     
     public String Actual_Nombre_Usuario,Actual_Apellido_Usuario,Actual_Cargo;
     
@@ -52,6 +52,12 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
         btnRealizarRetiro = new javax.swing.JButton();
         btnCancelar = new javax.swing.JButton();
         btnRealizarIngreso = new javax.swing.JButton();
+        txtFechaInicio = new javax.swing.JTextField();
+        txtFechaFin = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        consultaDiaActual = new javax.swing.JButton();
+        consultaPorFecha = new javax.swing.JButton();
 
         setUndecorated(true);
         setResizable(false);
@@ -105,7 +111,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
 
         lblSaldo.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblSaldo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblSaldo.setText("2080");
+        lblSaldo.setText("$");
         pnlClaro.add(lblSaldo);
         lblSaldo.setBounds(560, 220, 320, 30);
 
@@ -121,11 +127,11 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Fecha", "Concepto", "Ingreso", "Retiro", "Saldo", "Detalles"
+                "Fecha", "Tipo", "Concepto", "Monto", "Saldo nuevo", "Detalles", "Usuario"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -136,7 +142,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
         jScrollPane2.setViewportView(tblMovimientosCaja);
 
         pnlClaro.add(jScrollPane2);
-        jScrollPane2.setBounds(300, 270, 760, 190);
+        jScrollPane2.setBounds(170, 280, 760, 190);
 
         btnRealizarRetiro.setBackground(new java.awt.Color(204, 204, 204));
         btnRealizarRetiro.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -149,7 +155,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
             }
         });
         pnlClaro.add(btnRealizarRetiro);
-        btnRealizarRetiro.setBounds(600, 510, 170, 70);
+        btnRealizarRetiro.setBounds(470, 510, 170, 70);
 
         btnCancelar.setBackground(new java.awt.Color(204, 204, 204));
         btnCancelar.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -162,7 +168,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
             }
         });
         pnlClaro.add(btnCancelar);
-        btnCancelar.setBounds(890, 510, 170, 70);
+        btnCancelar.setBounds(760, 510, 170, 70);
 
         btnRealizarIngreso.setBackground(new java.awt.Color(204, 204, 204));
         btnRealizarIngreso.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -175,18 +181,81 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
             }
         });
         pnlClaro.add(btnRealizarIngreso);
-        btnRealizarIngreso.setBounds(300, 510, 170, 70);
+        btnRealizarIngreso.setBounds(170, 510, 170, 70);
+
+        txtFechaInicio.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtFechaInicio.setText("YYYY-MM-DD");
+        txtFechaInicio.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtFechaInicioFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtFechaInicioFocusLost(evt);
+            }
+        });
+        pnlClaro.add(txtFechaInicio);
+        txtFechaInicio.setBounds(1090, 280, 160, 28);
+
+        txtFechaFin.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        txtFechaFin.setText("YYYY-MM-DD");
+        pnlClaro.add(txtFechaFin);
+        txtFechaFin.setBounds(1090, 320, 160, 28);
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel1.setText("Fecha fin");
+        pnlClaro.add(jLabel1);
+        jLabel1.setBounds(980, 320, 100, 30);
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel2.setText("Fecha inicio");
+        pnlClaro.add(jLabel2);
+        jLabel2.setBounds(980, 280, 100, 30);
+
+        consultaDiaActual.setBackground(new java.awt.Color(204, 204, 204));
+        consultaDiaActual.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        consultaDiaActual.setText("Consultar día actual");
+        consultaDiaActual.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED, java.awt.Color.black, java.awt.Color.black, java.awt.Color.black, java.awt.Color.black));
+        consultaDiaActual.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        consultaDiaActual.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                consultaDiaActualActionPerformed(evt);
+            }
+        });
+        pnlClaro.add(consultaDiaActual);
+        consultaDiaActual.setBounds(980, 420, 270, 40);
+
+        consultaPorFecha.setBackground(new java.awt.Color(204, 204, 204));
+        consultaPorFecha.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        consultaPorFecha.setText("Consultar por fecha");
+        consultaPorFecha.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED, java.awt.Color.black, java.awt.Color.black, java.awt.Color.black, java.awt.Color.black));
+        consultaPorFecha.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        consultaPorFecha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                consultaPorFechaActionPerformed(evt);
+            }
+        });
+        pnlClaro.add(consultaPorFecha);
+        consultaPorFecha.setBounds(980, 360, 270, 40);
 
         getContentPane().add(pnlClaro);
         pnlClaro.setBounds(0, 0, 1270, 583);
     }// </editor-fold>//GEN-END:initComponents
 
+    /***
+     * Función que consulta la base de datos y muestra los datos de movimientos de saldo del día actual
+     * 
+     */
     private void cargarMovimientos (){
         DefaultTableModel mod=(DefaultTableModel) tblMovimientosCaja.getModel();
         tblMovimientosCaja.setModel(mod);
         
-        String sql="select Fecha,Concepto, Ingreso, Retiro, Saldo, Detalles from Corte_Caja";
-        String[] Datos = new String[6];
+        String sql="select Fecha, Tipo, Concepto, Monto, Saldo, Detalles, u.nom_Usuario \n" +
+        "from Corte_Caja CC\n" +
+        "inner join usuarios u\n" +
+        "on (cc.Id_Usuario  = u.Id_Usuario )\n" +
+        "where Fecha like curdate();";
+        
+        String[] Datos = new String[7];
         try {
             Statement st = conectar.createStatement();
             ResultSet rs = st.executeQuery(sql);
@@ -198,6 +267,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
                 Datos[3]=rs.getString(4);
                 Datos[4]=rs.getString(5);
                 Datos[5]=rs.getString(6);
+                Datos[6]=rs.getString(7);
                 
                 mod.addRow(Datos);
             }
@@ -206,7 +276,10 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Error al consultar los datos");
         } 
     }
-       
+    
+    /**
+     * Función para enviar información sobre el usuario que usa el sistema hacia la interfaz_Principal
+     */
     private void MandaInfoIP(){
         Interfaz_Principal IP = new Interfaz_Principal();
             IP.Actual_Nombre_Usuario=Actual_Nombre_Usuario;
@@ -215,6 +288,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
             this.dispose();
             IP.setVisible(true);
     }
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -244,9 +318,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
             public void run() {
                 new Ventana_CorteDeCaja().setVisible(true);
             }
-        });
-       
-        
+        });    
     }
     private void btnCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarSesionActionPerformed
         this.dispose();
@@ -270,7 +342,14 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCancelarActionPerformed
 
     private void btnRealizarIngresoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRealizarIngresoActionPerformed
-        
+        mandaDatosVIE();
+    }//GEN-LAST:event_btnRealizarIngresoActionPerformed
+
+    /**
+     *  Función que envía los datos del usuario usuando el sistema 
+     *  hacia la la ventana de ingreso de efectivo, junto con el saldo actual
+     */
+    private void mandaDatosVIE(){
         Ventana_IngresoEfectivo VIE = new Ventana_IngresoEfectivo();
         VIE.Actual_Nombre_Usuario=Actual_Nombre_Usuario;
         VIE.Actual_Apellido_Usuario=Actual_Apellido_Usuario;
@@ -278,23 +357,44 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
         VIE.Saldo = Saldo;
         VIE.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_btnRealizarIngresoActionPerformed
-
+    }
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         lblUsuario.setText(Actual_Cargo+": "+Actual_Nombre_Usuario+" "+Actual_Apellido_Usuario);
         
         cargarMovimientos();
         
         //si es la primera vez que se loguea el usuario en el día soliciar ingreso inicial
-        if(tblMovimientosCaja.getRowCount() == 0){
-            this.dispose();
-            Ventana_IngresoEfectivo VIE = new Ventana_IngresoEfectivo();
-            VIE.setVisible(true);
+        if(Saldo.equals("0")){
+            mandaDatosVIE();
         }
-        Saldo =  tblMovimientosCaja.getValueAt(tblMovimientosCaja.getRowCount()-1, 4) + "";
-        //Saldo = tblMovimientosCaja.getValueAt(tblMovimientosCaja.getRowCount()-1, 4);
-        lblSaldo.setText(Saldo + "");
+        else{
+            Saldo =  tblMovimientosCaja.getValueAt(tblMovimientosCaja.getRowCount()-1, 4) + "";
+
+            lblSaldo.setText(Saldo + "");
+        }
     }//GEN-LAST:event_formWindowOpened
+
+    private void consultaDiaActualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consultaDiaActualActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_consultaDiaActualActionPerformed
+
+    private void consultaPorFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consultaPorFechaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_consultaPorFechaActionPerformed
+
+    private void txtFechaInicioFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtFechaInicioFocusGained
+        if (txtFechaInicio.getText().equals("YYYY-MM-DD")) {
+            txtFechaInicio.setText("");
+            txtFechaInicio.setForeground(Color.black);
+        }
+    }//GEN-LAST:event_txtFechaInicioFocusGained
+
+    private void txtFechaInicioFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtFechaInicioFocusLost
+        if (txtFechaInicio.getText().equals("")) {
+            txtFechaInicio.setText("YYYY-MM-DD");
+            txtFechaInicio.setForeground(Color.black);
+        }
+    }//GEN-LAST:event_txtFechaInicioFocusLost
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -302,7 +402,11 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
     private javax.swing.JButton btnCerrarSesion;
     private javax.swing.JButton btnRealizarIngreso;
     private javax.swing.JButton btnRealizarRetiro;
+    private javax.swing.JButton consultaDiaActual;
+    private javax.swing.JButton consultaPorFecha;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblSaldo;
@@ -310,5 +414,7 @@ public class Ventana_CorteDeCaja extends javax.swing.JFrame {
     private javax.swing.JPanel pnlClaro;
     private javax.swing.JPanel pnlNaranja;
     private javax.swing.JTable tblMovimientosCaja;
+    private javax.swing.JTextField txtFechaFin;
+    private javax.swing.JTextField txtFechaInicio;
     // End of variables declaration//GEN-END:variables
 }

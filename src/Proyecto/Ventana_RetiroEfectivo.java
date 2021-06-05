@@ -16,14 +16,16 @@ import javax.swing.JTextField;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 /**
- *
- * @author arlet
+ * Clase que sirve para hacer retiros de efectivo sobre el saldo en caja
+ * 
  */
 public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
 
     public String Concepto = "", Detalles = "", Saldo = "0";
-    public float Retiro = 0;
+    public String Tipo = "Egreso";
+    public float Monto = 0;
 
     public String Actual_Nombre_Usuario, Actual_Apellido_Usuario, Actual_Cargo, id_Usuario;
 
@@ -148,7 +150,7 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
 
         lblSaldo.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         lblSaldo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblSaldo.setText("2080");
+        lblSaldo.setText("$");
         pnlClaro.add(lblSaldo);
         lblSaldo.setBounds(560, 220, 320, 30);
 
@@ -203,7 +205,7 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
         getContentPane().add(pnlClaro);
         pnlClaro.setBounds(0, 0, 1270, 583);
     }// </editor-fold>//GEN-END:initComponents
-
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -250,6 +252,11 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnCancelarActionPerformed
 
+    /**
+     * Función que valida los JComboBox de la ventana para verificar que se seleccionó una opción válida
+     * @param combo JComboBox a validar
+     * @return verdadero si es una opción válida y falso si es inválida
+     */
     private boolean ValidaCombos(JComboBox combo) {
         try {
             if (combo.getSelectedIndex() == 0) {
@@ -263,16 +270,27 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
         return true;
     }
 
+    /**
+     * Función para verifica que los números tengan un formato válido
+     * @param valor jTextField que contiene el número a validar
+     * @throws Exception En caso de que no cumpla con el formato especificado
+     */
     private void ValidaNumeros(JTextField valor) throws Exception {
         String saldo = valor.getText();
         if (saldo.equals("")) {
             throw new Exception("Error, ingresa el saldo.");
         }
         if (!saldo.matches("[\\d]?[\\d]?[\\d]?[\\d][.]?[\\d]?[\\d]?[\\d]?")) {
-            throw new Exception("Saldo invalido, solo Numeros.");
+            throw new Exception("Monto inválido, solo números.");
         }
     }
 
+    /**
+     * Manda un mensaje de error si el monto no es válido y limpia el campo
+     * @param valor JTextField que contiene el monto
+     * @return verdadero si el monto es válido y falso si es inválido
+     * @throws Exception en caso de que sea inválido
+     */
     private boolean ValidaMonto(JTextField valor) throws Exception {
         try{
             ValidaNumeros(valor);
@@ -286,7 +304,9 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
         }
         return true;
     }
-    
+    /**
+     * Obtiene el id del usario que inició sesión para posteriormente usarlo en los registros
+     */
     private void obtenerIdUsuario(){
         String sql = "select ID_Usuario from usuarios where nombre='"+Actual_Nombre_Usuario+"';";
         System.out.print(sql);
@@ -301,15 +321,19 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
         }catch(Exception e){}
     }
     
+    /**
+     * Guarda los datos ingresados en la base de datos
+     * @return verdadero si se pudo guardar, falso si no
+     */
      private boolean guardar(){
         boolean estado = false;
         float saldoNuevo;
         int idUser = Integer.parseInt(id_Usuario);
         
         Concepto = cmbConcepto.getSelectedItem().toString();
-        Retiro = Float.parseFloat(txtMonto.getText());
+        Monto = Float.parseFloat(txtMonto.getText());
         
-        saldoNuevo = Float.parseFloat(Saldo)- Retiro;
+        saldoNuevo = Float.parseFloat(Saldo)- Monto;
         Saldo = saldoNuevo +"";
         if(TxtDecripción.getText().equals("Escribe aquí los detalles")){
             Detalles = "";
@@ -317,13 +341,14 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
             Detalles = TxtDecripción.getText();
         
         CBD.conectar();
-        String sql = "insert into Corte_caja(Fecha, Concepto, Retiro, Saldo, Detalles, Id_Usuario) "
+         String sql = "insert into Corte_caja(Fecha,Tipo, Concepto, Monto, Saldo, Detalles, Id_Usuario) "
                 + "values(curdate(),"
-                + "'" + Concepto + "',"
-                + Retiro + ","
+                + "'" + Tipo + "',"
+                + "'" + Concepto + "', -"
+                + Monto + ","
                 + saldoNuevo + ","
                 + "'" + Detalles + "',"
-                + idUser /***********OBTENER ID DE USUARIO**************/
+                + idUser 
                 + ")";
         if(CBD.ejecutar(sql)){
             estado = true;
@@ -331,6 +356,9 @@ public class Ventana_RetiroEfectivo extends javax.swing.JFrame {
         CBD.desconectar();
         return estado;
     }
+     /**
+     * Limpia los campos de la ventana
+     */
       private void limpiarCampos(){
         cmbConcepto.setSelectedIndex(0);
         txtMonto.setText("");
